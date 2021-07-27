@@ -266,3 +266,29 @@ def transferlearning_dataset_predict(x,path):
         adjacency = torch.FloatTensor(adjacency).to(device)
         dataset.append((smiles,fingerprints, adjacency, molecular_size)) 
     return dataset
+
+
+if __name__ == "__main__":
+    import pandas as pd
+    import rdkit
+    import pprint
+    pp = pprint.PrettyPrinter(indent=4)
+    path = "data/"
+    dataname = "Golm"
+    df = pd.read_csv("data/dataset.csv", sep=";")[["rt", "inchi"]]
+    #dataset = create_dataset('dataset.csv',path,dataname)
+    df["smiles"] = df.inchi.apply(lambda i: rdkit.Chem.MolToSmiles(rdkit.Chem.MolFromInchi("InChI="+i)))
+    df["RT"] = df["rt"]
+    df[["smiles","RT"]].to_csv(path+"dataset.txt", sep="\t", index=False)
+    dataset = create_dataset('dataset.txt', path, dataname)
+    #Smiles,fingerprints, adjacencies, molecular_sizes, RT = list(zip(*dataset))
+    #RT = [int(rt[0][0]) for rt in RT]
+    df2 = pd.DataFrame(list(zip(*dataset)), index=["SMILES", "fingerprints", "adjacencies", "molecular_sizes", "RT"]).T
+    for c in df2.columns:
+        if c in ("SMILES", "molecular_sizes"): continue
+        df2[c] = df2[c].apply(lambda x: np.array(x))
+    df2 =df2.applymap(lambda x: x if not isinstance(x, np.ndarray) or len(x) > 1 else x[0])
+    df2 =df2.applymap(lambda x: x if not isinstance(x, np.ndarray) or len(x) > 1 else x[0])
+    df2 = df2.set_index("SMILES")
+    df2["InChI"] = df.set_index("smiles")["inchi"]
+    df2.set_index("InChI").to_excel("fingerprints.xlsx")
