@@ -7,7 +7,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from sklearn.metrics import roc_auc_score
-import Padreprocess as pp
+import preprocess as pp
 import pickle
 
 class MolecularGraphNeuralNetwork(nn.Module):
@@ -167,7 +167,7 @@ if __name__ == "__main__":
     decay_interval=10
     iteration=200
     N=5000
-    path='/data/'
+    path='data/'
     dataname='SMRT'
     if torch.cuda.is_available():
         device = torch.device('cuda')
@@ -186,7 +186,7 @@ if __name__ == "__main__":
         device = torch.device('cpu')
         print('The code uses a CPU...')
     print('-'*100)
-    print('Preprocessing the', dataset, 'dataset.')
+    print('Preprocessing the', dataname, 'dataset.')
     print('Just a moment......')    
     print('-'*100)
     print('The preprocess has finished!')
